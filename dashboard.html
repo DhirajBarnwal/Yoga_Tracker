@@ -387,5 +387,62 @@
         }
     });
     </script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    function loadRecentSessions() {
+        const recentSessionsTable = document.querySelector('tbody');
+        
+        // Load sessions
+        const sessions = JSON.parse(localStorage.getItem('sessions') || '[]');
+        const meditationSessions = JSON.parse(localStorage.getItem('meditation-sessions') || '[]');
+
+        // Normalize meditation sessions format
+        const formattedMeditation = meditationSessions.map(med => ({
+            date: med.timestamp ? new Date(med.timestamp).toISOString().split('T')[0] : '',
+            type: 'Meditation',
+            duration: med.duration,
+            focus: med.intensity,
+            effectiveness: '-',
+            notes: med.type.replace('-', ' '),
+        }));
+
+        const formattedYoga = sessions.map(sess => ({
+            date: sess.date,
+            type: sess.type,
+            duration: sess.duration,
+            focus: sess.focus || '-',
+            effectiveness: '-',
+            notes: sess.notes || '-',
+        }));
+
+        // Combine and sort
+        const allSessions = [...formattedYoga, ...formattedMeditation].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Only show the 5 most recent
+        const recent = allSessions.slice(0, 5);
+
+        recentSessionsTable.innerHTML = '';
+
+        recent.forEach(session => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">${session.date}</td>
+                <td class="px-6 py-4 whitespace-nowrap">${session.type}</td>
+                <td class="px-6 py-4 whitespace-nowrap">${session.duration} min</td>
+                <td class="px-6 py-4 whitespace-nowrap">${session.focus}</td>
+                <td class="px-6 py-4 whitespace-nowrap">${session.effectiveness}</td>
+                <td class="px-6 py-4 whitespace-nowrap">${session.notes}</td>
+            `;
+            recentSessionsTable.appendChild(tr);
+        });
+    }
+
+    loadRecentSessions();
+});
+</script>
+
+    
 </body>
 </html>
